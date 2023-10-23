@@ -1,0 +1,13 @@
+{
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true
+    },
+    "python.languageServer": "Pylance",
+    "python.analysis.extraPaths": [
+        "C:\\Users\\jeuch\\Desktop\\CARLA\\PythonAPI",
+        "C:\\users\\jeuch\\appdata\\local\\programs\\python\\python38"
+    ],
+    "python.analysis.autoImportCompletions": false,
+    "python.analysis.typeCheckingMode": "off"
+}
