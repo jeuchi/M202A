@@ -12,6 +12,9 @@ import math
 import numpy as np
 from agents.navigation.behavior_agent import BehaviorAgent
 from PIL import Image
+from sensor_data import SensorData
+import queue
+import threading
 
 
 class TrafficGenerator:
@@ -25,6 +28,11 @@ class TrafficGenerator:
         self.collision_occured = False
         self.camera = None
         self.saved = False
+        self.sensor_data = SensorData(
+            filepath="out/", size=1000, rows=600, cols=800, depth=1, sensor="CameraSeg"
+        )
+        self.semantic_queue = queue.Queue()
+        self.t1 = None
 
     def destroy(self):
         if self.vehicle is not None:
@@ -36,6 +44,13 @@ class TrafficGenerator:
         if self.camera is not None:
             self.camera.destroy()
             self.camera = None
+
+        while not self.semantic_queue.empty():
+            print(self.semantic_queue.qsize())
+            self.process_queue()
+        # if self.t1 is not None:
+        # self.t1.join()
+        #  self.t1 = None
 
     def spawn_vehicle(self):
         spawn = carla.Transform(
@@ -52,13 +67,19 @@ class TrafficGenerator:
         self.collision_occurred = True
 
     def camera_callback(self, image, data_dict):
+        # self.sensor_data.add_image(image.raw_data, 'CameraSeg')
         image.convert(carla.ColorConverter.CityScapesPalette)
-        data_dict["image"] = np.reshape(
-            np.copy(image.raw_data), (image.height, image.width, 4)
-        )
+        # data_dict["image"] = np.reshape(
+        #     np.copy(image.raw_data), (image.height, image.width, 4)
+        # )
         # print(data_dict['image'])
-        if not self.saved:
-            image.save_to_disk(f"out/{image.frame}.png")
+        # if not self.saved:
+        image.save_to_disk(f"out/{image.frame}.png")
+
+    def process_queue(self):
+        image_semantic = self.semantic_queue.get()
+        image_semantic.convert(carla.ColorConverter.CityScapesPalette)
+        image_semantic.save_to_disk(f"out/{image_semantic.frame}.png")
 
     def mimic_drunk_driving(self):
         self.vehicle = self.spawn_vehicle()
@@ -75,10 +96,12 @@ class TrafficGenerator:
         self.collision_sensor.listen(self.on_collision)
 
         camera_bp = bp_lib.find("sensor.camera.semantic_segmentation")
+        camera_bp.set_attribute("sensor_tick", "0.5")
         camera_init_trans = carla.Transform(
             carla.Location(x=-40.06, y=20.31, z=5.76), carla.Rotation(yaw=90)
         )
         self.camera = self.world.spawn_actor(camera_bp, camera_init_trans)
+        self.camera.listen(self.semantic_queue.put)
 
         # View camera 1
         spectator = self.world.get_spectator()
@@ -86,10 +109,15 @@ class TrafficGenerator:
 
         image_w = camera_bp.get_attribute("image_size_x").as_int()
         image_h = camera_bp.get_attribute("image_size_y").as_int()
-        camera_data = {"image": np.zeros((image_h, image_w, 4))}
-        self.camera.listen(lambda image: self.camera_callback(image, camera_data))
+        camera_data = {"image": np.zeros((image_h, image_w, 1))}
+        # self.camera.listen(lambda image: self.camera_callback(image, camera_data))
+        # self.t1 = threading.Thread(target=self.process_queue)
+        # self.t1.start()
 
         while True:
+            self.world.tick()
+            self.process_queue()
+
             if self.agent.done():
                 print("Agent finished task")
                 self.destroy()
@@ -113,4 +141,4 @@ class TrafficGenerator:
             else:
                 self.vehicle.apply_control(self.agent.run_step())
 
-            time.sleep(0.25)
+        # time.sleep(0.25)

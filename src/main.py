@@ -154,6 +154,15 @@ if __name__ == "__main__":
         client = carla.Client(args.host, args.port)
         client.set_timeout(10.0)
         world = client.get_world()
+        #settings = world.get_settings()
+        #settings.no_rendering_mode = True
+        #settings.synchronous_mode = False
+        #settings.substepping = True
+        ## 0.001 maps us to FPS
+        #settings.max_substep_delta_time = 0.001
+        #settings.max_substeps = 10
+        #world.apply_settings(settings)
+
 
         traffic_generator = TrafficGenerator(world)
         traffic_generator.mimic_drunk_driving()
