@@ -1,6 +1,9 @@
 # Python
 __pycache__
 .ipynb_checkpoints
+.env
+.venv
+venv
 
 # Common output folders
 out
