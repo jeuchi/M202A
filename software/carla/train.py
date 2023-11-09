@@ -10,7 +10,7 @@ import time
 try:
     sys.path.append(
         glob.glob(
-            "../../../Desktop/carla/PythonAPI/carla/dist/carla-*%d.%d-%s.egg"
+            "../../../../Desktop/carla/PythonAPI/carla/dist/carla-*%d.%d-%s.egg"
             % (
                 sys.version_info.major,
                 sys.version_info.minor,
@@ -21,14 +21,13 @@ try:
 except IndexError:
     pass
 try:  
-	sys.path.append(glob.glob('../../../Desktop/carla/PythonAPI/carla')[0])
+	sys.path.append(glob.glob('../../../../Desktop/carla/PythonAPI/carla')[0])
 except IndexError:  
 	pass
 
 import carla
 
 from carla import VehicleLightState as vls
-from sensor_data import SensorData
 from agents.navigation.behavior_agent import BehaviorAgent
 from tqdm import tqdm
 
