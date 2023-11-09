@@ -1,9 +1,9 @@
 {
-  "name": "roadsense",
+  "name": "traffic-watch",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://{jeuchi}.github.io/{m202a}/",
+  "homepage": "https://{jeuchi}.github.io/{traffic-watch}/",
   "scripts": {
     "dev": "vite --host",
     "build": "tsc && vite build",

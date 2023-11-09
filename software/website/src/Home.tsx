@@ -1,7 +1,7 @@
 function Home() {
   return (
     <div>
-      <h1 className="text-3xl font-bold text-center">Introduction to RoadSense</h1>
+      <h1 className="text-3xl font-bold text-center">Introduction to TrafficWatch</h1>
 
       <div className="p-2">
         <h1 className="text-2xl font-bold pb-1">Abstract</h1>
