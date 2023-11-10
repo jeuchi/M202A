@@ -30,7 +30,11 @@ function App() {
           </a>
         </div>
         <div className="navbar-end w-full pr-10">
-          <a href="https://github.com/jeuchi/traffic-watch" target="_blank" className="btn normal-case">
+          <a
+            href="https://github.com/jeuchi/traffic-watch"
+            target="_blank"
+            className="btn normal-case"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
