@@ -2,6 +2,7 @@ import './App.css';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import Home from './Home';
 import Proposal from './Proposal';
+import Report from './Report';
 import Presentation from './Presentation';
 
 function App() {
@@ -19,6 +20,14 @@ function App() {
             className="text-l hover:underline hover:decoration-blue-400 font-medium"
           >
             Proposal
+          </a>
+        </div>
+        <div className="pl-10">
+          <a
+            href="#/report"
+            className="text-l hover:underline hover:decoration-blue-400 font-medium"
+          >
+            Report
           </a>
         </div>
         <div className="pl-10">
@@ -54,6 +63,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/proposal" element={<Proposal />} />
+            <Route path="/report" element={<Report />} />
             <Route path="/presentation" element={<Presentation />} />
             <Route path="*" element={<Home />} />
           </Routes>
