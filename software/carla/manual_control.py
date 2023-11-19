@@ -67,7 +67,7 @@ import os
 import sys
 
 try:
-    sys.path.append(glob.glob('../../../Desktop/carla/PythonAPI/carla/dist/carla-*%d.%d-%s.egg' % (
+    sys.path.append(glob.glob('../../../../../Desktop/carla/PythonAPI/carla/dist/carla-*%d.%d-%s.egg' % (
         sys.version_info.major,
         sys.version_info.minor,
         'win-amd64' if os.name == 'nt' else 'linux-x86_64'))[0])
@@ -214,6 +214,7 @@ class World(object):
         self._actor_filter = args.filter
         self._actor_generation = args.generation
         self._gamma = args.gamma
+        self.car_index = 0
         self.restart()
         self.world.on_tick(hud.on_world_tick)
         self.recording_enabled = False
@@ -243,7 +244,22 @@ class World(object):
         cam_index = self.camera_manager.index if self.camera_manager is not None else 0
         cam_pos_index = self.camera_manager.transform_index if self.camera_manager is not None else 0
         # Get a random blueprint.
-        blueprint = random.choice(get_actor_blueprints(self.world, self._actor_filter, self._actor_generation))
+        # Jeremy Euchi: Spawn deterministic cars.
+
+        vehicles = ['vehicle.audi.a2', 'vehicle.audi.etron', 'vehicle.audi.tt', 'vehicle.bmw.grandtourer', 
+                    'vehicle.chevrolet.impala', 'vehicle.citroen.c3', 'vehicle.dodge.charger_2020', 
+                    'vehicle.ford.crown', 'vehicle.ford.mustang', 'vehicle.jeep.wrangler_rubicon', 'vehicle.lincoln.mkz_2017', 
+                    'vehicle.lincoln.mkz_2020', 'vehicle.mercedes.coupe', 'vehicle.mercedes.coupe_2020', 'vehicle.mini.cooper_s', 
+                    'vehicle.mini.cooper_s_2021', 'vehicle.nissan.micra', 'vehicle.nissan.patrol', 'vehicle.tesla.model3', 
+                    'vehicle.toyota.prius']
+        blueprint_library = self.world.get_blueprint_library()
+        car_index = self.car_index % len(vehicles)
+        if car_index == 0:
+            print("First car")
+        vehicle = vehicles[car_index]
+        blueprint = blueprint_library.filter(vehicle)[0]
+        self.car_index += 1
+        #blueprint = random.choice(get_actor_blueprints(self.world, self._actor_filter, self._actor_generation))
         blueprint.set_attribute('role_name', self.actor_role_name)
         if blueprint.has_attribute('color'):
             color = random.choice(blueprint.get_attribute('color').recommended_values)
@@ -457,11 +473,14 @@ class KeyboardControl(object):
                             world.hud.notification("Enabled Vehicle Telemetry")
                         except Exception:
                             pass
+                        '''
+                        jeremy euchi: disable
                 elif event.key > K_0 and event.key <= K_9:
                     index_ctrl = 0
                     if pygame.key.get_mods() & KMOD_CTRL:
                         index_ctrl = 9
                     world.camera_manager.set_sensor(event.key - 1 - K_0 + index_ctrl)
+                    '''
                 elif event.key == K_r and not (pygame.key.get_mods() & KMOD_CTRL):
                     world.camera_manager.toggle_recording()
                 elif event.key == K_r and (pygame.key.get_mods() & KMOD_CTRL):
