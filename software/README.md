@@ -15,7 +15,12 @@ If you need to generate random license plates, this requires a source build of C
 
 ### Manual Control
 ```
- py /third_party/manual_control.py
+ py /carla/manual_control.py
+```
+
+### Collect Data
+```
+ py /carla/train.py
 ```
 
 ### Client Scripts

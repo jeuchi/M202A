@@ -1,5 +1,5 @@
 # Data
-path: ../../data/cars
+path: C:\Users\jeuch\Documents\GitHub\traffic-watch\data\cars
 train: images/train 
 val: images/val
 

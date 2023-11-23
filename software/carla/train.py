@@ -123,8 +123,10 @@ class Game:
         self.directory = directory
         self.running = True
         self.recording_counter = 0
-        self.camera_fps = 0.30
-        self.max_recording_frames = int(5/self.camera_fps) # 5 seconds of footage
+        self.camera_tick = 0.50
+        self.max_recording_frames = int(5/self.camera_tick) # 5 seconds of footage
+        self.traffic_light_79_st = next((d for d in self.world.get_actors() if d.id == 15), None)
+        self.manual_car = next((d for d in self.world.get_actors() if d.id == 96), None)
 
     def destroy(self):
         for auto_vehicle in self.auto_vehicles:
@@ -139,7 +141,7 @@ class Game:
 
     def process_queue(self):
         image = self.semantic_queue.get()
-        image.save_to_disk(f"{self.directory}/recordings/{self.recordings}/{self.recording_capture_queue}.png")
+        image.save_to_disk(f"{self.directory}/recordings/{self.recordings}/videos/{self.recording_capture_queue}.png")
         self.recording_capture_queue += 1
     
     def camera_callback(self, image, only_single_image=False):
@@ -153,10 +155,31 @@ class Game:
         if self.recording_counter >= self.max_recording_frames:
             self.camera.stop()
         else:
+            self.semantic_queue.put(image)
+            
             sys.stdout.write("\r")
             sys.stdout.write("{:2d} frames remaining".format(self.max_recording_frames - self.recording_counter)) 
             sys.stdout.flush()
-            self.semantic_queue.put(image)
+
+            sensor_dir = f"{self.directory}/recordings/{self.recordings}/sensors"
+            if not os.path.exists(sensor_dir):
+                os.makedirs(sensor_dir)
+            label_file = open(f"{self.directory}/recordings/{self.recordings}/sensors/{self.recording_counter}.txt", 'w')
+            if self.traffic_light_79_st.get_state() == carla.TrafficLightState.Red:
+                red_light_sensor = 1
+            else:
+                red_light_sensor = 0
+
+            '''
+            vec = self.manual_car.get_velocity()
+            x = vec.x
+            y = vec.y
+            z = vec.z
+            kmh = math.sqrt(x*x+y*y+z*z) * 3.6
+            '''
+            kmh = 0
+            label_file.write(f"{red_light_sensor} {image.timestamp} {kmh}")
+            label_file.close()
             self.recording_counter += 1
 
     def run(self):
@@ -173,7 +196,9 @@ class Game:
         # Set up camera
         bp_lib = self.world.get_blueprint_library()
         camera_bp = bp_lib.find("sensor.camera.rgb")
-        camera_bp.set_attribute("sensor_tick", str(self.camera_fps))
+        camera_bp.set_attribute("sensor_tick", str(self.camera_tick))
+        camera_bp.set_attribute("motion_blur_intensity", "0")
+        camera_bp.set_attribute("motion_blur_max_distortion", "0")
         camera_bp.set_attribute("fov", "75")
         camera_bp.set_attribute("image_size_x", "1920")
         camera_bp.set_attribute("image_size_y", "1080")
@@ -197,7 +222,6 @@ class Game:
                 for i in tqdm (range (self.semantic_queue.qsize()), 
                 desc="Saving captures...", 
                 ascii=False):
-                    time.sleep(0.01)
                     self.process_queue()
                 self.recordings += 1
 
@@ -228,6 +252,15 @@ class Game:
                     self.running = False
                     time.sleep(0.5)
                     break
+                elif key == '5': # debug actors
+                    for actor in self.world.get_actors():
+                        if actor.type_id == 'traffic.traffic_light' or 'vehicle' in actor.type_id:
+                            print(actor.id, actor.type_id, actor.get_location())
+                elif key == '6':
+                    if self.traffic_light_79_st.get_state() == carla.TrafficLightState.Red:
+                        print("RED")
+                    else:
+                        print("GREEN")
 
 if __name__ == "__main__":
     game = None 
