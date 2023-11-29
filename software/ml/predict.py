@@ -1,6 +1,7 @@
 from ultralytics import YOLO
 import cv2
 import numpy
+from constants import LABEL_MAPPING
 
 model_path = r"C:\Users\jeuch\Documents\GitHub\traffic-watch\runs\pose\train2\weights\last.pt"
 image_path = f"C:\\Users\\jeuch\\Documents\\GitHub\\traffic-watch\\data\\test\\\\3.png"
@@ -27,10 +28,10 @@ for result in results:
     numpy_keypoints = keypoints.numpy()
 
     for keypoints in numpy_keypoints:
-        for p in keypoints.xy[0]:
+        for index, p in enumerate(keypoints.xy[0], start=1):
             x = int(p[0])
             y = int(p[1])
-            cv2.circle(img, (x, y), 1, visible_color, -1)
+            cv2.circle(img, (x, y), 1, [255,100,255] if index == LABEL_MAPPING['passenger_side_mirror'] else visible_color, -1)
 
     for box in numpy_boxes:
         xtl = int(box.xyxy[0][0])
