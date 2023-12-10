@@ -44,73 +44,24 @@ def dump(obj):
     print("obj.%s = %r" % (attr, getattr(obj, attr)))
 
 class Vehicle:
-    def __init__(self, world, blueprint, x, y, z, destination, autopilot=False):
+    def __init__(self, world, blueprint, x, y, z):
         self.world = world
         self.vehicle = self.world.try_spawn_actor(
             blueprint,
-            carla.Transform(
-                carla.Location(x, y, z),
-                carla.Rotation(pitch=0.0, yaw=270.0, roll=0.000000),
-            ),
+            carla.Transform(carla.Location(x, y, z)),
         )
-        self.autopilot = autopilot
-        self.vehicle.set_autopilot(autopilot)
-        self.finished = False
-        self.collision_sensor = None
-        self.collision_occurred = False
-        if not autopilot:
-            self.agent = BehaviorAgent(self.vehicle, behavior="normal")
-            self.agent.set_destination(destination)
-            self.agent.ignore_vehicles(False)
-            # Set up collision detection sensor
-            bp_lib = self.world.get_blueprint_library()
-            collision_sensor_bp = bp_lib.find("sensor.other.collision")
-            self.collision_sensor = self.world.spawn_actor(
-                collision_sensor_bp, carla.Transform(), attach_to=self.vehicle
-            )
-            self.collision_sensor.listen(self.on_collision)
-
+        self.vehicle.set_autopilot(True)
 
     def destroy(self):
         if self.vehicle is not None:
             self.vehicle.destroy()
             self.vehicle = None
 
-    def on_collision(self, event):
-        self.collision_occurred = True
-
-    def run_step(self):
-        if self.autopilot:
-            return
-
-        if self.agent.done():
-            print("Agent finished task")
-            self.finished = True
-            return
-        if self.collision_occurred is True:
-            print("Collision detected")
-            self.finished = True
-            return
-
-        if not self.vehicle.is_at_traffic_light() and random.random() < 0.10:
-            control = carla.VehicleControl()
-            frequency = 22.1
-            amplitude = 5.14
-            control.steer = amplitude * math.sin(frequency * time.time())
-            control.throttle = random.uniform(0.1, 1)
-            if random.random() < 0.8:
-                control.brake = 0.0
-            else:
-                control.brake = random.uniform(0.1, 0.2)
-            self.vehicle.apply_control(control)
-        else:
-            self.vehicle.apply_control(self.agent.run_step())
-
-
 class Game:
-    def __init__(self, world, log_camera, directory, capture_counter, recording_counter):
+    def __init__(self, world, log_camera, directory, capture_counter, recording_counter, add_driver):
         self.world = world
         self.log_camera = log_camera
+        self.add_driver =  add_driver
         self.spawn_points = world.get_map().get_spawn_points()
         self.auto_vehicles = []
         self.target_vehicle = None
@@ -125,7 +76,7 @@ class Game:
         self.recording_counter = 0
         self.camera_tick = 0.50
         self.max_recording_frames = int(5/self.camera_tick) # 5 seconds of footage
-        self.traffic_light_79_st = next((d for d in self.world.get_actors() if d.id == 15), None)
+        self.traffic_light_79_st = next((d for d in self.world.get_actors() if d.id == 291), None)
         self.manual_car = next((d for d in self.world.get_actors() if d.id == 96), None)
 
     def destroy(self):
@@ -212,7 +163,9 @@ class Game:
         print("1 - Record")
         print("2 - Capture one frame")
         print("3 - Set camera position")
-        print("4 - Exit program\n")
+        print("4 - Exit program")
+        print("5 - Print world")
+        print("6 - Print current light\n")
 
         while self.running:
             while self.camera.is_listening:
@@ -224,11 +177,21 @@ class Game:
                 ascii=False):
                     self.process_queue()
                 self.recordings += 1
+                if self.target_vehicle is not None:
+                    self.target_vehicle.destroy()
+                    self.target_vehicle = None
 
             print("Waiting for action...")
             while True:
                 key = keyboard.read_key()
                 if key == '1':
+                    if self.add_driver:
+                        spawn_point = carla.Transform(carla.Location(x=-45, y=99, z=0.6), carla.Rotation(pitch=0.0, yaw=270.0, roll=0.0))
+                        bp = random.choice(self.world.get_blueprint_library().filter('vehicle'))
+                        vehicle = world.spawn_actor(bp, spawn_point)
+                        vehicle.set_autopilot(True)
+                        self.target_vehicle = vehicle
+
                     for remaining in range(3, 0, -1):
                         sys.stdout.write("\r")
                         sys.stdout.write("Recording in {:2d} seconds...".format(remaining)) 
@@ -307,6 +270,12 @@ if __name__ == "__main__":
             type=int,
             help="Recording to start from (default: 0)",
         )
+        argparser.add_argument(
+            "--add-driver",
+            action="store_true",
+            default=False,
+            help="Simulates car driving during recording",
+        )
         args = argparser.parse_args()
 
         logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
@@ -317,7 +286,7 @@ if __name__ == "__main__":
 
         # Start simulation
         print("Initializing game...")
-        game = Game(world, args.log_camera, args.directory, args.capture_counter, args.recording_counter)
+        game = Game(world, args.log_camera, args.directory, args.capture_counter, args.recording_counter, args.add_driver)
         game.run()
 
     except KeyboardInterrupt:

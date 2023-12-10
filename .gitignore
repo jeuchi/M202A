@@ -9,7 +9,6 @@ venv
 out
 data/*
 !data/README.md
-!data/car_train
 runs
 
 # Logs
