@@ -76,8 +76,8 @@ class Game:
         self.recording_counter = 0
         self.camera_tick = 0.50
         self.max_recording_frames = int(5/self.camera_tick) # 5 seconds of footage
-        self.traffic_light_79_st = next((d for d in self.world.get_actors() if d.id == 291), None)
-        self.manual_car = next((d for d in self.world.get_actors() if d.id == 96), None)
+        self.traffic_light_79_st = None
+        #manual_car = next((d for d in self.world.get_actors() if d.id == 96), None)
 
     def destroy(self):
         for auto_vehicle in self.auto_vehicles:
@@ -160,12 +160,18 @@ class Game:
 
         self.camera = self.world.spawn_actor(camera_bp, camera_init_trans)
 
+        for actor in self.world.get_actors():
+            if actor.type_id == 'traffic.traffic_light':
+                location = actor.get_location()
+                if int(location.x) == -31 and int(location.y) == 20:
+                    self.traffic_light_79_st = actor
+
         print("1 - Record")
         print("2 - Capture one frame")
         print("3 - Set camera position")
-        print("4 - Exit program")
-        print("5 - Print world")
-        print("6 - Print current light\n")
+        print("4 - Print world")
+        print("5 - Print current light")
+        print("6 - Exit program\n")
 
         while self.running:
             while self.camera.is_listening:
@@ -211,19 +217,19 @@ class Game:
                     print("Saved new camera position")
                     time.sleep(0.5)
                     break
-                elif key == '4':
-                    self.running = False
-                    time.sleep(0.5)
-                    break
-                elif key == '5': # debug actors
+                elif key == '4': # debug actors
                     for actor in self.world.get_actors():
                         if actor.type_id == 'traffic.traffic_light' or 'vehicle' in actor.type_id:
                             print(actor.id, actor.type_id, actor.get_location())
-                elif key == '6':
+                elif key == '5':
                     if self.traffic_light_79_st.get_state() == carla.TrafficLightState.Red:
                         print("RED")
                     else:
                         print("GREEN")
+                elif key == '6':
+                    self.running = False
+                    time.sleep(0.5)
+                    break
 
 if __name__ == "__main__":
     game = None 

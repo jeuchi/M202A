@@ -1,3 +1,14 @@
+import numpy as np
+
+IMAGE_WIDTH = 1920
+IMAGE_HEIGHT = 1080
+
+PIXELS_HEIGHT = 2
+PIXELS_WIDTH = 2
+PIXELS_ARRAY_SIZE = PIXELS_HEIGHT*PIXELS_WIDTH*3
+
+ACTIONS = np.array(['good', 'weaving', 'red_light', 'cross_yellow', 'off_road', 'collision'])
+
 LABEL_MAPPING = {
     'car': 0,
     'rear_bumper_left': 1,
