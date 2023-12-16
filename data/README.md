@@ -1,2 +1,1 @@
-# Data
-Due to the amount of data collected needed to train various models in the pipeline, only critical data is saved here.
+[Rest of the data](https://drive.google.com/drive/folders/1LWiQrgLqsyEDuWdi9XK0rQRfvCHPm7Z1?usp=sharing)

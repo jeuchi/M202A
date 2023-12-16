@@ -7,8 +7,10 @@ venv
 
 # Common output folders
 out
-old_data/*
 runs
+data/test/**
+data/recordings/**
+data/cars/**
 
 # Logs
 logs

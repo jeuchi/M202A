@@ -70,9 +70,9 @@ function Report() {
               <h2 className="text-2xl font-bold pb-5">Abstract</h2>
               <p>
                 The objective is to figure out where a car is in a particular frame, extract
-                keypoints, normalize the image, and feed the inputs to an LSTM model to predict what
-                action the car took. The concerned outputs are <b>good</b>,<b>weaving</b>,{' '}
-                <b>ran red light</b>, <b>crossing yellow line</b>, <b>off road</b>, and{' '}
+                keypoints, get the red light sensor, and feed the inputs to an LSTM model to predict
+                what action the car took. The concerned outputs are <b>good</b>,<b>weaving</b>,
+                <b>ran red light</b>, <b>crossing yellow line</b>, <b>off road</b>, and
                 <b>collision</b>.
               </p>
             </div>

@@ -13,7 +13,7 @@ pip install -r requirements.txt
 ## Running CARLA
 If you need to generate random license plates, this requires a source build of CARLA. Otherwise, the ready made binary is fine to use. Run CARLA binary for server hosting.
 
-### Manual Control
+### Manual Control (provided by CARLA and modified slightly)
 ```
  py /carla/manual_control.py
 ```
@@ -22,9 +22,6 @@ If you need to generate random license plates, this requires a source build of C
 ```
  py /carla/train.py
 ```
-
-### Client Scripts
-Inside /carla, there are various scripts to create events for training or testing
 
 ## Machine Learning
 The scripts found in /ml are used to train various models used in the pipeline. Note that due to the amount of data collected,
