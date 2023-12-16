@@ -7,8 +7,7 @@ venv
 
 # Common output folders
 out
-data/*
-!data/README.md
+old_data/*
 runs
 
 # Logs

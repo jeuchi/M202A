@@ -58,7 +58,7 @@ class Vehicle:
             self.vehicle = None
 
 class Game:
-    def __init__(self, world, log_camera, directory, capture_counter, recording_counter, add_driver):
+    def __init__(self, world, log_camera, directory, capture_counter, recording_counter, add_driver, intersection):
         self.world = world
         self.log_camera = log_camera
         self.add_driver =  add_driver
@@ -76,7 +76,8 @@ class Game:
         self.recording_counter = 0
         self.camera_tick = 0.50
         self.max_recording_frames = int(5/self.camera_tick) # 5 seconds of footage
-        self.traffic_light_79_st = None
+        self.intersection = intersection
+        self.traffic_light = None
         #manual_car = next((d for d in self.world.get_actors() if d.id == 96), None)
 
     def destroy(self):
@@ -116,7 +117,7 @@ class Game:
             if not os.path.exists(sensor_dir):
                 os.makedirs(sensor_dir)
             label_file = open(f"{self.directory}/recordings/{self.recordings}/sensors/{self.recording_counter}.txt", 'w')
-            if self.traffic_light_79_st.get_state() == carla.TrafficLightState.Red:
+            if self.traffic_light.get_state() == carla.TrafficLightState.Red:
                 red_light_sensor = 1
             else:
                 red_light_sensor = 0
@@ -154,17 +155,26 @@ class Game:
         camera_bp.set_attribute("image_size_x", "1920")
         camera_bp.set_attribute("image_size_y", "1080")
 
-        camera_init_trans = carla.Transform(
-            carla.Location(x=-40.06, y=20.31, z=5.76), carla.Rotation(yaw=90)
-        )
+        if self.intersection == 1:
+            camera_init_trans = carla.Transform(
+                carla.Location(x=-40.06, y=20.31, z=5.76), carla.Rotation(yaw=90)
+            )
+        else:
+            camera_init_trans = carla.Transform(
+                carla.Location(x=102, y=18, z=5.58), carla.Rotation(yaw=270, pitch=-15)
+            )
 
         self.camera = self.world.spawn_actor(camera_bp, camera_init_trans)
 
         for actor in self.world.get_actors():
             if actor.type_id == 'traffic.traffic_light':
                 location = actor.get_location()
-                if int(location.x) == -31 and int(location.y) == 20:
-                    self.traffic_light_79_st = actor
+                if self.intersection == 1:
+                    if int(location.x) == -31 and int(location.y) == 20:
+                        self.traffic_light = actor
+                else:
+                    if int(location.x) == 89 and int(location.y) == 20:
+                        self.traffic_light = actor
 
         print("1 - Record")
         print("2 - Capture one frame")
@@ -192,7 +202,10 @@ class Game:
                 key = keyboard.read_key()
                 if key == '1':
                     if self.add_driver:
-                        spawn_point = carla.Transform(carla.Location(x=-45, y=99, z=0.6), carla.Rotation(pitch=0.0, yaw=270.0, roll=0.0))
+                        if self.intersection == 1:
+                            spawn_point = carla.Transform(carla.Location(x=-45, y=99, z=0.6), carla.Rotation(pitch=0.0, yaw=270.0, roll=0.0))
+                        else:
+                            spawn_point = carla.Transform(carla.Location(x=106, y=7, z=0.6), carla.Rotation(pitch=0.0, yaw=270.0, roll=0.0))
                         bp = random.choice(self.world.get_blueprint_library().filter('vehicle'))
                         vehicle = world.spawn_actor(bp, spawn_point)
                         vehicle.set_autopilot(True)
@@ -222,7 +235,7 @@ class Game:
                         if actor.type_id == 'traffic.traffic_light' or 'vehicle' in actor.type_id:
                             print(actor.id, actor.type_id, actor.get_location())
                 elif key == '5':
-                    if self.traffic_light_79_st.get_state() == carla.TrafficLightState.Red:
+                    if self.traffic_light.get_state() == carla.TrafficLightState.Red:
                         print("RED")
                     else:
                         print("GREEN")
@@ -282,6 +295,12 @@ if __name__ == "__main__":
             default=False,
             help="Simulates car driving during recording",
         )
+        argparser.add_argument(
+            "--intersection",
+            default=1,
+            type=int,
+            help="Intersection (default: 1)",
+        )
         args = argparser.parse_args()
 
         logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
@@ -292,7 +311,7 @@ if __name__ == "__main__":
 
         # Start simulation
         print("Initializing game...")
-        game = Game(world, args.log_camera, args.directory, args.capture_counter, args.recording_counter, args.add_driver)
+        game = Game(world, args.log_camera, args.directory, args.capture_counter, args.recording_counter, args.add_driver, intersection=args.intersection)
         game.run()
 
     except KeyboardInterrupt:
