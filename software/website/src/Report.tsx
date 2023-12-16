@@ -71,8 +71,8 @@ function Report() {
               <p>
                 The objective is to figure out where a car is in a particular frame, extract
                 keypoints, get the red light sensor, and feed the inputs to an LSTM model to predict
-                what action the car took. The concerned outputs are <b>good</b>,<b>weaving</b>,
-                <b>ran red light</b>, <b>crossing yellow line</b>, <b>off road</b>, and
+                what action the car took. The concerned outputs are <b>good</b>, <b>weaving</b>,{' '}
+                <b>running the red light</b>, <b>crossing the yellow line</b>, <b>off road</b>, and{' '}
                 <b>collision</b>.
               </p>
             </div>
@@ -100,12 +100,12 @@ function Report() {
               <br />
               <p>
                 As stated, this approach tries to mimic the work done in human activity recognition
-                and applies the same principles to view the car's motion through time. I believe it
-                will be successful due to the potential impact of improving safety and response time
-                to crashes or potential drunk driving. The biggest challenge is the complexity of
-                the task and necessity of tons of training data. I needed to scale back due to how
-                long it takes to train and annotate hundreds of images. Another challenge was the
-                great dependency on the accuracy of the first model in identifying keypoints.
+                and applies the same principles to view the car's motion through time. There is the
+                potential impact of improving safety and response time to crashes or possible drunk
+                driving. The biggest challenge is the complexity of the task and necessity of tons
+                of training data. I needed to scale back due to how long it takes to train and
+                annotate hundreds of images. Another challenge was the great dependency on the
+                accuracy of the first model in identifying keypoints.
               </p>
               <br />
               <p>
@@ -128,14 +128,13 @@ function Report() {
               <p>
                 The DMV criteria [1] is an inspiration for scoring a driver based on their behavior
                 over time. Microsoft's research with HAMS [2] took it with one step further and
-                described out using in-vehicle camera, they can sort of replace the driving
-                instructor and the driving test more automated. The problem so far is that most
-                articles deal with inside the vehicle and use sensors like the smartphone's
-                accelerometer or the car's sensors. The third article which helped [3] dealt with
-                training a LSTM-R to detect abnormal driving behavior. Again, the problem is using
-                vehicle kinematic data using a smartphone. Using an LSTM is what I will be
-                attempting and it was helpful to see behaviors like fast U-turns be something of
-                interest as well.
+                described out using in-vehicle camera, they can replace the driving instructor and
+                make the driving test automated. The problem so far is that most articles deal with
+                inside the vehicle and use sensors like the the car's IMU data. The third article
+                which helped [3] dealt with training a LSTM-R to detect abnormal driving behavior.
+                Again, the problem is using vehicle kinematic data using a smartphone. Using an LSTM
+                is what I will be attempting and it was helpful to see behaviors like fast U-turns
+                be something of interest as well.
               </p>
               <h3 className="text-l font-bold py-2">Datasets</h3>
               <p>Collected videos/images using CARLA simulator.</p>
@@ -154,10 +153,10 @@ function Report() {
             <div className="p-2 pb-1">
               <h2 className="text-2xl font-bold pb-5">Technical Approach</h2>
               <p>
-                The first step is to train on top of YOLOv8 pose estimation model [5] by collecting
-                820 images each depicting several different car models and postions across the
-                image. Using CVAT annotation software [6], the bounding box and 16 keypoints are
-                manually drawn:
+                The first step is to train on top of the YOLOv8 pose estimation model [5] by
+                collecting 820 images each depicting several different car models and postions
+                across the image. Using CVAT annotation software [6], the bounding box and 16
+                keypoints are manually drawn:
               </p>
               <br />
               <img src={cvat} width={800} height={800} />
@@ -165,24 +164,24 @@ function Report() {
               <p>
                 The car detection model is then trained which now can be used for phase two. The
                 LSTM model will be responsible for detecting each of the several actions mentioned
-                above. 40 videos at 10 frames each (5 seconds) is collected for each action. It is
+                above. 45 videos at 10 frames each (5 seconds) is collected for each action. It is
                 then fed into one of three LSTM models to train.
               </p>
               <br />
               <p>
                 Version 1 uses the manual annotations on a subset of 15 videos for each of the
-                actions besides off road and collision. The goal here is to see if given a highly
-                accurate representation of the car movements, can it make accurate predictions.
-                Version 2 and 3 free up the manual annotations constraint and rely heavily on the
-                car detection model to extract the keypoints of the car. Version 2 uses the manual
-                annotations from the subset and for the rest of the videos (and new actions), uses
-                the detection model to extract. This is a sort of hybrid approach. Version 3 relies
-                only on the car detection and instead extracts just the bounding box. There is a
-                hypothesis that we may not even need any of the keypoints and just the bounding box
-                will suffice. Notice that all three models are all still fed the red light sensor (0
-                for green, 1 for red) and the pixels surrounding the car. The pixels surrounding the
-                car should hopefully give context for determing where the car is relative to the
-                yellow line, other cars, the intersection lines, etc.
+                actions besides off road and collision. The goal here is to see if it can it make
+                good predictions given an accurate representation of the car movements. Version 2
+                and 3 free up the manual annotations constraint and rely heavily on the car
+                detection model to extract the keypoints of the car. Version 2 uses the manual
+                annotations from the subset automates the rest of the videos using the detection
+                model. This is a hybrid approach. Version 3 relies only on the car detection and
+                instead uses just the bounding box. There is a hypothesis that we may not even need
+                any of the keypoints, and just the bounding box will suffice. Notice that all three
+                models are all still fed the red light sensor (0 for green, 1 for red) and the
+                pixels surrounding the car. The pixels surrounding the car should hopefully give
+                context for determing where the car is relative to the yellow line, other cars, the
+                intersection lines, etc.
               </p>
             </div>
           </div>
@@ -251,9 +250,9 @@ function Report() {
             <div className="p-2 pb-1">
               <h2 className="text-2xl font-bold pb-5">Discussion and Conclusions</h2>
               <p>
-                In conclusion, this was a difficult task which required an immense ammount of
+                In conclusion, this was a difficult task which required an immense amount of
                 training data and effort to annotate the images. I'm happy with the results of the
-                car detection model because that was once piece of worry because the LSTM models
+                car detection model because that was one worry of mine because the LSTM models
                 relies heavily on the accuracy. I feel like the lack of training data made the LSTM
                 model suffer the most. This makes it hard to come to a compelling conclusion whether
                 the keypoints were necessary. However, as the results show, the keypoints

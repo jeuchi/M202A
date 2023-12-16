@@ -106,11 +106,11 @@ function Proposal() {
               over time. Microsoft's research with HAMS [2] took it with one step further and
               described out using in-vehicle camera, they can sort of replace the driving instructor
               and the driving test more automated. The problem so far is that most articles deal
-              with inside the vehicle and use sensors like the smartphone's accelerometer or the
-              car's sensors. The third article which helped [3] dealt with training a LSTM-R to
-              detect abnormal driving behavior. Again, the problem is using vehicle kinematic data
-              using a smartphone. Using an LSTM is what I will be attempting and it was helpful to
-              see behaviors like fast U-turns be something of interest as well.
+              with inside the vehicle and use sensors like the accelerometer or the car's sensors.
+              The third article which helped [3] dealt with training a LSTM-R to detect abnormal
+              driving behavior. Again, the problem is using vehicle kinematic data using a
+              smartphone. Using an LSTM is what I will be attempting and it was helpful to see
+              behaviors like fast U-turns be something of interest as well.
             </p>
             <h3 className="text-l font-bold py-2">Datasets</h3>
             <p>TBD</p>

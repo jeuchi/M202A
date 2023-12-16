@@ -6,11 +6,11 @@ function Home() {
       <div className="p-2">
         <h1 className="text-2xl font-bold pb-1">Abstract</h1>
         <p>
-          The goal is to detect bad driving behaviors using machine learning. Using a single camera
-          overlooking an intersection, can we detect either <b>good driving</b>,<b>weaving</b>,
-          <b>ran red light</b>, <b>crossing yellow line</b>, <b>off road</b>, or a <b>collision</b>.
-          This approach avoids using in-vehicle IMU data and instead relies on computer vision to
-          determine how the car is moving in the scene.
+          The goal is to detect bad driving behaviors using machine learning using a single camera
+          overlooking an intersection. Can we detect either <b>good driving</b>,<b>weaving</b>,
+          <b>running the red light</b>, <b>crossing the yellow line</b>, <b>going off road</b>, or a{' '}
+          <b>collision</b>. This approach avoids using in-vehicle IMU data and instead relies on
+          computer vision to determine how the car is moving in the scene.
         </p>
       </div>
       <div className="p-2 pb-1">
